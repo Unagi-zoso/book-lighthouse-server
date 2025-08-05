@@ -22,16 +22,8 @@ router.get('/search', asyncWrapper(async (req: BookSearchRequest, res: Response)
     return ResponseHelper.badRequest(res, 'Title parameter is required');
   }
 
-  const pageNum = parseInt(page, 10);
-  const limitNum = parseInt(limit, 10);
-  
-  if (isNaN(pageNum)) {
-    return ResponseHelper.badRequest(res, 'Page must be a valid number');
-  }
-  
-  if (isNaN(limitNum)) {
-    return ResponseHelper.badRequest(res, 'Limit must be a valid number');
-  }
+  const pageNum = Math.max(1, parseInt(page, 10) || 1);
+  const limitNum = Math.max(5, parseInt(limit, 10) || 5);
 
   const result = await bookSearchService.searchByTitle(title, {
     page: pageNum,

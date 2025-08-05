@@ -74,28 +74,62 @@ describe('Books 라우터', () => {
       expect(mockSearchByTitle).not.toHaveBeenCalled();
     });
 
-    it('페이지가 유효한 숫자가 아닌 경우 400 에러를 반환해야 함', async () => {
+    it('잘못된 페이지 값을 최소값 1로 보정해야 함', async () => {
+      const mockResult = createBookSearchResult();
+      mockSearchByTitle.mockResolvedValue({
+        success: true,
+        data: mockResult
+      });
+
       const response = await request(app)
         .get('/books/search')
         .query({ title: DEFAULTS.QUERY, page: 'invalid' })
-        .expect(400);
+        .expect(200);
 
-      expect(response.body).toEqual(createExpectedErrorResponse('Page must be a valid number'));
-      expect(mockSearchByTitle).not.toHaveBeenCalled();
+      expect(mockSearchByTitle).toHaveBeenCalledWith(DEFAULTS.QUERY, {
+        page: 1,
+        limit: DEFAULTS.LIMIT
+      });
     });
 
-    it('제한값이 유효한 숫자가 아닌 경우 400 에러를 반환해야 함', async () => {
+    it('잘못된 제한값을 최소값 5로 보정해야 함', async () => {
+      const mockResult = createBookSearchResult();
+      mockSearchByTitle.mockResolvedValue({
+        success: true,
+        data: mockResult
+      });
+
       const response = await request(app)
         .get('/books/search')
         .query({ title: DEFAULTS.QUERY, limit: 'invalid' })
-        .expect(400);
+        .expect(200);
 
-      expect(response.body).toEqual(createExpectedErrorResponse('Limit must be a valid number'));
-      expect(mockSearchByTitle).not.toHaveBeenCalled();
+      expect(mockSearchByTitle).toHaveBeenCalledWith(DEFAULTS.QUERY, {
+        page: DEFAULTS.PAGE,
+        limit: DEFAULTS.MIN_LIMIT
+      });
+    });
+
+    it('음수 페이지를 1로 보정해야 함', async () => {
+      const mockResult = createBookSearchResult();
+      mockSearchByTitle.mockResolvedValue({
+        success: true,
+        data: mockResult
+      });
+
+      const response = await request(app)
+        .get('/books/search')
+        .query({ title: DEFAULTS.QUERY, page: '-1' })
+        .expect(200);
+
+      expect(mockSearchByTitle).toHaveBeenCalledWith(DEFAULTS.QUERY, {
+        page: 1,
+        limit: DEFAULTS.LIMIT
+      });
     });
 
     it('BookSearchService에서 에러를 반환할 때 400 에러를 반환해야 함', async () => {
-      const errorMessage = 'Page must be a positive integer';
+      const errorMessage = 'Limit must be between 1 and 50';
       mockSearchByTitle.mockResolvedValue({
         success: false,
         error: errorMessage
@@ -103,7 +137,7 @@ describe('Books 라우터', () => {
 
       const response = await request(app)
         .get('/books/search')
-        .query({ title: DEFAULTS.QUERY, page: '0' })
+        .query({ title: DEFAULTS.QUERY })
         .expect(400);
 
       expect(response.body).toEqual(createExpectedErrorResponse(errorMessage));
@@ -140,6 +174,42 @@ describe('Books 라우터', () => {
 
       expect(response.body.message).toBe('Title parameter is required');
       expect(mockSearchByTitle).not.toHaveBeenCalled();
+    });
+
+    it('0 또는 음수 제한값을 최소값 5로 보정해야 함', async () => {
+      const mockResult = createBookSearchResult();
+      mockSearchByTitle.mockResolvedValue({
+        success: true,
+        data: mockResult
+      });
+
+      const response = await request(app)
+        .get('/books/search')
+        .query({ title: DEFAULTS.QUERY, limit: '0' })
+        .expect(200);
+
+      expect(mockSearchByTitle).toHaveBeenCalledWith(DEFAULTS.QUERY, {
+        page: DEFAULTS.PAGE,
+        limit: DEFAULTS.MIN_LIMIT
+      });
+    });
+
+    it('0 페이지를 1로 보정해야 함', async () => {
+      const mockResult = createBookSearchResult();
+      mockSearchByTitle.mockResolvedValue({
+        success: true,
+        data: mockResult
+      });
+
+      const response = await request(app)
+        .get('/books/search')
+        .query({ title: DEFAULTS.QUERY, page: '0' })
+        .expect(200);
+
+      expect(mockSearchByTitle).toHaveBeenCalledWith(DEFAULTS.QUERY, {
+        page: 1,
+        limit: DEFAULTS.LIMIT
+      });
     });
   });
 });

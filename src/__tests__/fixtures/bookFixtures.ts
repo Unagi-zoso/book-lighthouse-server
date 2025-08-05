@@ -7,6 +7,7 @@ import { BookSearchResult } from '@/services/bookSearchService';
 export const DEFAULTS = {
   PAGE: 1,
   LIMIT: 10,
+  MIN_LIMIT: 5,
   TOTAL: 25,
   TOTAL_PAGES: 3,
   BOOKS_COUNT: 2,
