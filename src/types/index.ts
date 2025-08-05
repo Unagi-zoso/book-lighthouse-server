@@ -18,6 +18,49 @@ export interface PaginationMeta {
   totalPages: number;
 }
 
+// Library API Types
+export interface LibrarySearchRequest {
+  isbn: string;
+  region?: number;
+  dtl_region?: number;
+  pageNo?: number;
+  pageSize?: number;
+  format?: 'xml' | 'json';
+}
+
+export interface LibrarySearchParams {
+  authKey: string;
+  isbn: string;
+  region: number;
+  dtl_region?: number;
+  pageNo?: number;
+  pageSize?: number;
+  format?: 'xml' | 'json';
+}
+
+export interface Library {
+  libCode: string;
+  libName: string;
+  address: string;
+  tel: string;
+  fax: string;
+  latitude: string;
+  longitude: string;
+  homepage: string;
+  closed: string;
+  operatingTime: string;
+}
+
+export interface LibrarySearchResponse {
+  pageNo: number;
+  pageSize: number;
+  numFound: number;
+  resultNum: number;
+  libs: {
+    lib: Library[];
+  };
+}
+
 // Error Types
 export class AppError extends Error {
   public readonly statusCode: number;
