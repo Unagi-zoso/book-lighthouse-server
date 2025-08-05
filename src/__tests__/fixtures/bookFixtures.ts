@@ -1,13 +1,14 @@
 import { AladdinSearchResponse, AladdinBookItem } from '@/types';
 import { BookSearchResult } from '@/services/bookSearchService';
+import { BOOK_SEARCH_CONSTANTS } from '@/constants/bookSearch';
 
 /**
  * 테스트에서 사용하는 기본값 상수들
  */
 export const DEFAULTS = {
-  PAGE: 1,
-  LIMIT: 10,
-  MIN_LIMIT: 5,
+  PAGE: BOOK_SEARCH_CONSTANTS.DEFAULT_PAGE,
+  LIMIT: BOOK_SEARCH_CONSTANTS.DEFAULT_LIMIT,
+  MIN_LIMIT: BOOK_SEARCH_CONSTANTS.MIN_LIMIT,
   TOTAL: 25,
   TOTAL_PAGES: 3,
   BOOKS_COUNT: 2,

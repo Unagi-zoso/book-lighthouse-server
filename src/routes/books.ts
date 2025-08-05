@@ -2,6 +2,7 @@ import { Router, Request, Response } from 'express';
 import { asyncWrapper } from '@/utils/asyncWrapper';
 import { ResponseHelper } from '@/utils/response';
 import { BookSearchService } from '@/services/bookSearchService';
+import { BOOK_SEARCH_CONSTANTS } from '@/constants/bookSearch';
 
 const router = Router();
 const bookSearchService = new BookSearchService();
@@ -15,15 +16,15 @@ interface BookSearchRequest extends Request {
 }
 
 router.get('/search', asyncWrapper(async (req: BookSearchRequest, res: Response) => {
-  const { page = '1', limit = '10' } = req.query;
+  const { page = BOOK_SEARCH_CONSTANTS.DEFAULT_PAGE_STR, limit = BOOK_SEARCH_CONSTANTS.DEFAULT_LIMIT_STR } = req.query;
   const title = (req.query.title as string)?.trim() || '';
 
   if (!title) {
     return ResponseHelper.badRequest(res, 'Title parameter is required');
   }
 
-  const pageNum = Math.max(1, parseInt(page, 10) || 1);
-  const limitNum = Math.max(5, parseInt(limit, 10) || 5);
+  const pageNum = Math.max(BOOK_SEARCH_CONSTANTS.MIN_PAGE, parseInt(page, 10) || BOOK_SEARCH_CONSTANTS.DEFAULT_PAGE);
+  const limitNum = Math.max(BOOK_SEARCH_CONSTANTS.MIN_LIMIT, parseInt(limit, 10) || BOOK_SEARCH_CONSTANTS.MIN_LIMIT);
 
   const result = await bookSearchService.searchByTitle(title, {
     page: pageNum,
