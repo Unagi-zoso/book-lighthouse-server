@@ -1,5 +1,5 @@
 import { AladdinApiClient } from './AladdinApiClient';
-import { ServiceResult, AladdinSearchResponse, PaginationMeta } from '@/types';
+import { ServiceResult, PaginationMeta, AladdinBookItem } from '@/types';
 
 export interface BookSearchOptions {
   page?: number;
@@ -7,7 +7,7 @@ export interface BookSearchOptions {
 }
 
 export interface BookSearchResult {
-  books: any[];
+  books: AladdinBookItem[];
   pagination: PaginationMeta;
 }
 

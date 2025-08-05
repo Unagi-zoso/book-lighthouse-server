@@ -99,13 +99,15 @@ export const createBookSearchResult = (overrides: Partial<{
   const totalPages = Math.ceil(merged.totalResults / merged.limit);
 
   return {
-    books: Array.from({ length: merged.totalBooks }, (_, index) => ({
-      title: `테스트 책 ${index + 1}`,
-      author: `저자 ${index + 1}`,
-      isbn: `123456789012${index}`,
-      publisher: `출판사 ${index + 1}`,
-      cover: `http://example.com/cover${index + 1}.jpg`
-    })),
+    books: Array.from({ length: merged.totalBooks }, (_, index) => 
+      createBookItem({
+        title: `테스트 책 ${index + 1}`,
+        author: `저자 ${index + 1}`,
+        isbn: `123456789012${index}`,
+        publisher: `출판사 ${index + 1}`,
+        cover: `http://example.com/cover${index + 1}.jpg`
+      })
+    ),
     pagination: {
       page: merged.page,
       limit: merged.limit,
