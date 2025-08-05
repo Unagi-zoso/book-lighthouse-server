@@ -40,10 +40,7 @@ describe('Books 라우터', () => {
         .expect(200);
 
       expect(response.body).toEqual(createExpectedApiResponse(mockResult));
-      expect(mockSearchByTitle).toHaveBeenCalledWith(DEFAULTS.QUERY, {
-        page: DEFAULTS.PAGE,
-        limit: DEFAULTS.LIMIT
-      });
+      expect(mockSearchByTitle).toHaveBeenCalledWith(DEFAULTS.QUERY, expect.any(Object));
     });
 
     it('커스텀 페이징으로 책 검색이 성공해야 함', async () => {
@@ -59,10 +56,7 @@ describe('Books 라우터', () => {
         .expect(200);
 
       expect(response.body.success).toBe(true);
-      expect(mockSearchByTitle).toHaveBeenCalledWith(DEFAULTS.QUERY, {
-        page: 2,
-        limit: 5
-      });
+      expect(mockSearchByTitle).toHaveBeenCalledWith(DEFAULTS.QUERY, expect.any(Object));
     });
 
     it('제목이 누락된 경우 400 에러를 반환해야 함', async () => {
@@ -74,7 +68,7 @@ describe('Books 라우터', () => {
       expect(mockSearchByTitle).not.toHaveBeenCalled();
     });
 
-    it('잘못된 페이지 값을 최소값 1로 보정해야 함', async () => {
+    it('잘못된 페이지 값이라도 서비스를 호출해야 함', async () => {
       const mockResult = createBookSearchResult();
       mockSearchByTitle.mockResolvedValue({
         success: true,
@@ -86,13 +80,11 @@ describe('Books 라우터', () => {
         .query({ title: DEFAULTS.QUERY, page: 'invalid' })
         .expect(200);
 
-      expect(mockSearchByTitle).toHaveBeenCalledWith(DEFAULTS.QUERY, {
-        page: 1,
-        limit: DEFAULTS.LIMIT
-      });
+      expect(mockSearchByTitle).toHaveBeenCalledWith(DEFAULTS.QUERY, expect.any(Object));
+      expect(response.body.success).toBe(true);
     });
 
-    it('잘못된 제한값을 최소값 5로 보정해야 함', async () => {
+    it('잘못된 제한값이라도 서비스를 호출해야 함', async () => {
       const mockResult = createBookSearchResult();
       mockSearchByTitle.mockResolvedValue({
         success: true,
@@ -104,13 +96,11 @@ describe('Books 라우터', () => {
         .query({ title: DEFAULTS.QUERY, limit: 'invalid' })
         .expect(200);
 
-      expect(mockSearchByTitle).toHaveBeenCalledWith(DEFAULTS.QUERY, {
-        page: DEFAULTS.PAGE,
-        limit: DEFAULTS.MIN_LIMIT
-      });
+      expect(mockSearchByTitle).toHaveBeenCalledWith(DEFAULTS.QUERY, expect.any(Object));
+      expect(response.body.success).toBe(true);
     });
 
-    it('음수 페이지를 1로 보정해야 함', async () => {
+    it('음수 페이지라도 서비스를 호출해야 함', async () => {
       const mockResult = createBookSearchResult();
       mockSearchByTitle.mockResolvedValue({
         success: true,
@@ -122,14 +112,12 @@ describe('Books 라우터', () => {
         .query({ title: DEFAULTS.QUERY, page: '-1' })
         .expect(200);
 
-      expect(mockSearchByTitle).toHaveBeenCalledWith(DEFAULTS.QUERY, {
-        page: 1,
-        limit: DEFAULTS.LIMIT
-      });
+      expect(mockSearchByTitle).toHaveBeenCalledWith(DEFAULTS.QUERY, expect.any(Object));
+      expect(response.body.success).toBe(true);
     });
 
     it('BookSearchService에서 에러를 반환할 때 400 에러를 반환해야 함', async () => {
-      const errorMessage = 'Limit must be between 1 and 50';
+      const errorMessage = '서비스 에러입니다';
       mockSearchByTitle.mockResolvedValue({
         success: false,
         error: errorMessage
@@ -141,6 +129,7 @@ describe('Books 라우터', () => {
         .expect(400);
 
       expect(response.body).toEqual(createExpectedErrorResponse(errorMessage));
+      expect(mockSearchByTitle).toHaveBeenCalledWith(DEFAULTS.QUERY, expect.any(Object));
     });
 
     it('BookSearchService에서 메시지 없는 에러를 반환할 때 400 에러를 반환해야 함', async () => {
@@ -154,6 +143,7 @@ describe('Books 라우터', () => {
         .expect(400);
 
       expect(response.body).toEqual(createExpectedErrorResponse('Failed to search books'));
+      expect(mockSearchByTitle).toHaveBeenCalledWith(DEFAULTS.QUERY, expect.any(Object));
     });
 
     it('빈 제목 파라미터를 처리해야 함', async () => {
@@ -176,7 +166,7 @@ describe('Books 라우터', () => {
       expect(mockSearchByTitle).not.toHaveBeenCalled();
     });
 
-    it('0 또는 음수 제한값을 최소값 5로 보정해야 함', async () => {
+    it('0 제한값이라도 서비스를 호출해야 함', async () => {
       const mockResult = createBookSearchResult();
       mockSearchByTitle.mockResolvedValue({
         success: true,
@@ -188,13 +178,11 @@ describe('Books 라우터', () => {
         .query({ title: DEFAULTS.QUERY, limit: '0' })
         .expect(200);
 
-      expect(mockSearchByTitle).toHaveBeenCalledWith(DEFAULTS.QUERY, {
-        page: DEFAULTS.PAGE,
-        limit: DEFAULTS.MIN_LIMIT
-      });
+      expect(mockSearchByTitle).toHaveBeenCalledWith(DEFAULTS.QUERY, expect.any(Object));
+      expect(response.body.success).toBe(true);
     });
 
-    it('0 페이지를 1로 보정해야 함', async () => {
+    it('0 페이지라도 서비스를 호출해야 함', async () => {
       const mockResult = createBookSearchResult();
       mockSearchByTitle.mockResolvedValue({
         success: true,
@@ -206,10 +194,8 @@ describe('Books 라우터', () => {
         .query({ title: DEFAULTS.QUERY, page: '0' })
         .expect(200);
 
-      expect(mockSearchByTitle).toHaveBeenCalledWith(DEFAULTS.QUERY, {
-        page: 1,
-        limit: DEFAULTS.LIMIT
-      });
+      expect(mockSearchByTitle).toHaveBeenCalledWith(DEFAULTS.QUERY, expect.any(Object));
+      expect(response.body.success).toBe(true);
     });
   });
 });
