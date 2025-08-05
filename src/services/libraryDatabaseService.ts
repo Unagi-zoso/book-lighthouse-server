@@ -24,7 +24,7 @@ export class LibraryDatabaseService {
       const { data, error } = await supabase
         .from('libraries')
         .select('*')
-        .order('lib_name');
+        .order('lib_code');
 
       if (error) {
         return {
