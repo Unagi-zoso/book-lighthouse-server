@@ -8,8 +8,4 @@ export const BOOK_SEARCH_CONSTANTS = {
   DEFAULT_LIMIT: 10,
   MIN_LIMIT: 5,
   MAX_LIMIT: 50,
-  
-  // 기본값들
-  DEFAULT_PAGE_STR: '1',
-  DEFAULT_LIMIT_STR: '10'
 } as const;
