@@ -1,12 +1,9 @@
-import dotenv from 'dotenv';
 import { ExternalApiService, ApiServiceConfig } from '@/services/externalApi';
 import { 
   ServiceResult, 
   AladdinSearchParams, 
   AladdinSearchResponse 
 } from '@/types';
-
-dotenv.config();
 
 export class AladdinApiClient {
   private readonly apiService: ExternalApiService;
