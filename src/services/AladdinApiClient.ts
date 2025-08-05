@@ -21,7 +21,7 @@ export class AladdinApiClient {
     };
 
     this.apiService = new ExternalApiService(config);
-    this.ttbKey = process.env.ALADDIN_API_KEY || '';
+    this.ttbKey = process.env.ALADDIN_API_KEY;
 
     if (!this.ttbKey) {
       throw new Error('ALADDIN_API_KEY is required in environment variables');
