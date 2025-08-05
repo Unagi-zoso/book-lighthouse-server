@@ -1,4 +1,3 @@
-import dotenv from 'dotenv';
 import { ExternalApiService, ApiServiceConfig } from '@/services/externalApi';
 import { 
   ServiceResult, 
@@ -6,8 +5,6 @@ import {
   LibrarySearchParams, 
   LibrarySearchResponse 
 } from '@/types';
-
-dotenv.config();
 
 export class LibraryApiClient {
   private readonly apiService: ExternalApiService;
