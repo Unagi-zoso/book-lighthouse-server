@@ -23,8 +23,13 @@ router.get('/search', asyncWrapper(async (req: BookSearchRequest, res: Response)
     return ResponseHelper.badRequest(res, 'Title parameter is required');
   }
 
-  const pageNum = Math.max(BOOK_SEARCH_CONSTANTS.MIN_PAGE, parseInt(page, 10) || BOOK_SEARCH_CONSTANTS.DEFAULT_PAGE);
-  const limitNum = Math.max(BOOK_SEARCH_CONSTANTS.MIN_LIMIT, parseInt(limit, 10) || BOOK_SEARCH_CONSTANTS.MIN_LIMIT);
+  const parsedPage = parseInt(page, 10);
+  const pageValue = isNaN(parsedPage) ? BOOK_SEARCH_CONSTANTS.DEFAULT_PAGE : parsedPage;
+  const pageNum = Math.max(BOOK_SEARCH_CONSTANTS.MIN_PAGE, pageValue); // 음수 처리
+
+  const parsedLimit = parseInt(limit, 10);
+  const limitValue = isNaN(parsedLimit) ? BOOK_SEARCH_CONSTANTS.MIN_LIMIT : parsedLimit;
+  const limitNum = Math.max(BOOK_SEARCH_CONSTANTS.MIN_LIMIT, limitValue); // 음수 처리
 
   const result = await bookSearchService.searchByTitle(title, {
     page: pageNum,
