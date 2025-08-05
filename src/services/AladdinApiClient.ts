@@ -21,11 +21,8 @@ export class AladdinApiClient {
     };
 
     this.apiService = new ExternalApiService(config);
-    this.ttbKey = process.env.ALADDIN_API_KEY;
-
-    if (!this.ttbKey) {
-      throw new Error('ALADDIN_API_KEY is required in environment variables');
-    }
+    this.ttbKey = process.env.ALADDIN_API_KEY ?? 
+      (() => { throw new Error('ALADDIN_API_KEY is required in environment variables'); })();
   }
 
   async searchBooks(params: Omit<AladdinSearchParams, 'TTBKey' | 'Version'>): Promise<ServiceResult<AladdinSearchResponse>> {
