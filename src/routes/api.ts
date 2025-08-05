@@ -1,8 +1,8 @@
 import { Router } from 'express';
-import { asyncWrapper } from '@/utils/asyncWrapper';
+import booksRouter from './books';
 
 const router = Router();
 
-// Posts routes
+router.use('/books', booksRouter);
 
 export default router;
