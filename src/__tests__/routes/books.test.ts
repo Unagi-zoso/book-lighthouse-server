@@ -131,5 +131,15 @@ describe('Books 라우터', () => {
       expect(response.body.message).toBe('Title parameter is required');
       expect(mockSearchByTitle).not.toHaveBeenCalled();
     });
+
+    it('공백(white space) 제목 파라미터를 처리해야 함', async () => {
+      const response = await request(app)
+        .get('/books/search')
+        .query({ title: ' '})
+        .expect(400);
+
+      expect(response.body.message).toBe('Title parameter is required');
+      expect(mockSearchByTitle).not.toHaveBeenCalled();
+    });
   });
 });

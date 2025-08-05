@@ -15,7 +15,8 @@ interface BookSearchRequest extends Request {
 }
 
 router.get('/search', asyncWrapper(async (req: BookSearchRequest, res: Response) => {
-  const { title, page = '1', limit = '10' } = req.query;
+  const { page = '1', limit = '10' } = req.query;
+  const title = (req.query.title as string)?.trim() || '';
 
   if (!title) {
     return ResponseHelper.badRequest(res, 'Title parameter is required');
