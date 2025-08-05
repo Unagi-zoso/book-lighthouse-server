@@ -1,5 +1,6 @@
 import { AladdinApiClient } from './AladdinApiClient';
 import { ServiceResult, PaginationMeta, AladdinBookItem } from '@/types';
+import { BOOK_SEARCH_CONSTANTS } from '@/constants/bookSearch';
 
 export interface BookSearchOptions {
   page?: number;
@@ -19,21 +20,18 @@ export class BookSearchService {
   }
 
   async searchByTitle(title: string, options: BookSearchOptions = {}): Promise<ServiceResult<BookSearchResult>> {
-    const { page = 1, limit = 10 } = options;
-
-    if (page < 1) {
+    // 입력값 검증 (정규화 전)
+    const validationError = this.validatePaginationParams(options.page, options.limit);
+    if (validationError) {
       return {
         success: false,
-        error: 'Page must be a positive integer'
+        error: validationError
       };
     }
 
-    if (limit < 1 || limit > 50) {
-      return {
-        success: false,
-        error: 'Limit must be between 1 and 50'
-      };
-    }
+    // 입력값 정규화 및 기본값 설정
+    const page = this.normalizePage(options.page);
+    const limit = this.normalizeLimit(options.limit);
 
     const start = (page - 1) * limit + 1;
 
@@ -75,5 +73,48 @@ export class BookSearchService {
       success: true,
       data: searchResult
     };
+  }
+
+  /**
+   * 페이지 값 정규화
+   * 참고: 최솟값/최댓값 검증은 validatePaginationParams에서 처리
+   */
+  private normalizePage(page?: number): number {
+    if (page === undefined || page === null || isNaN(page)) {
+      return BOOK_SEARCH_CONSTANTS.DEFAULT_PAGE;
+    }
+    return Math.floor(page);
+  }
+
+  /**
+   * 제한값 정규화
+   * 참고: 최솟값/최댓값 검증은 validatePaginationParams에서 처리
+   */
+  private normalizeLimit(limit?: number): number {
+    if (limit === undefined || limit === null || isNaN(limit)) {
+      return BOOK_SEARCH_CONSTANTS.DEFAULT_LIMIT;
+    }
+    return Math.floor(limit);
+  }
+
+  /**
+   * 페이징 파라미터 검증 (정규화 전 원시 값 검증)
+   */
+  private validatePaginationParams(page?: number, limit?: number): string | null {
+    // page 검증
+    if (page !== undefined) {
+      if (isNaN(page) || page < BOOK_SEARCH_CONSTANTS.MIN_PAGE) {
+        return 'Page must be a positive integer';
+      }
+    }
+
+    // limit 검증
+    if (limit !== undefined) {
+      if (isNaN(limit) || limit < BOOK_SEARCH_CONSTANTS.MIN_LIMIT || limit > BOOK_SEARCH_CONSTANTS.MAX_LIMIT) {
+        return `Limit must be between ${BOOK_SEARCH_CONSTANTS.MIN_LIMIT} and ${BOOK_SEARCH_CONSTANTS.MAX_LIMIT}`;
+      }
+    }
+
+    return null;
   }
 }

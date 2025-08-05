@@ -81,7 +81,7 @@ describe('BookSearchService', () => {
       const result = await sut.searchByTitle(DEFAULTS.QUERY, { limit: 100 });
 
       expect(result.success).toBe(false);
-      expect(result.error).toBe('Limit must be between 1 and 50');
+      expect(result.error).toBe('Limit must be between 5 and 50');
       expect(mockAladdinClient.searchBooksByTitle).not.toHaveBeenCalled();
     });
 
@@ -89,7 +89,7 @@ describe('BookSearchService', () => {
       const result = await sut.searchByTitle(DEFAULTS.QUERY, { limit: 0 });
 
       expect(result.success).toBe(false);
-      expect(result.error).toBe('Limit must be between 1 and 50');
+      expect(result.error).toBe('Limit must be between 5 and 50');
       expect(mockAladdinClient.searchBooksByTitle).not.toHaveBeenCalled();
     });
 
