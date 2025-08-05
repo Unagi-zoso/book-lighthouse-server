@@ -80,7 +80,7 @@ export const createAladdinSearchResponse = (overrides: Partial<{
 };
 
 /**
- * 테스트용 BookFinder 검색 결과 생성 헬퍼
+ * 테스트용 BookSearchResult  검색 결과 생성 헬퍼
  */
 export const createBookSearchResult = (overrides: Partial<{
   totalBooks: number;
