@@ -1,8 +1,8 @@
 import { BookSearchService } from '@/services/bookSearchService';
-import { AladdinApiClient } from '@/services/AladdinApiClient';
+import { AladdinApiClient } from '@/services/aladdinApiClient';
 import { createAladdinSearchResponse, DEFAULTS } from '@/__tests__/fixtures/bookFixtures';
 
-jest.mock('@/services/AladdinApiClient');
+jest.mock('@/services/aladdinApiClient');
 
 const MockedAladdinApiClient = AladdinApiClient as jest.MockedClass<typeof AladdinApiClient>;
 

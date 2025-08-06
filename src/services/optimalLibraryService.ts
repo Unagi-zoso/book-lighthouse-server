@@ -1,7 +1,7 @@
 import { ServiceResult } from '@/types';
 import { LibraryDatabaseService, LibraryDatabaseRecord } from './libraryDatabaseService';
 import { LibraryApiClient } from './libraryApiClient';
-import { AladdinApiClient } from './AladdinApiClient';
+import { AladdinApiClient } from './aladdinApiClient';
 
 export interface OptimalLibraryRequest {
   isbns: string[]; // 1-3개의 ISBN
