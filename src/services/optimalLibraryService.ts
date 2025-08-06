@@ -113,10 +113,12 @@ export class OptimalLibraryService {
             // API에서 반환된 도서관이 우리 DB에 없을 수도 있음
             const dbLibrary = librariesResult.data.find(lib => lib.lib_code === libCode);
             if (dbLibrary) {
-              if (!libraryBookMap.has(libCode)) {
-                libraryBookMap.set(libCode, []);
+              const existingBooks = libraryBookMap.get(libCode);
+              if (existingBooks) {
+                existingBooks.push(isbn);
+              } else {
+                libraryBookMap.set(libCode, [isbn]);
               }
-              libraryBookMap.get(libCode)!.push(isbn);
             }
           }
         }
