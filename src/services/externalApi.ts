@@ -1,5 +1,6 @@
 import axios, { AxiosInstance, AxiosRequestConfig, AxiosResponse } from 'axios';
 import { ServiceResult } from '@/types';
+import { loggingService } from './loggingService';
 
 export interface ApiServiceConfig {
   baseURL: string;
@@ -33,7 +34,16 @@ export class ExternalApiService {
     // Request interceptor
     this.client.interceptors.request.use(
       config => {
-        console.log(`[API] ${config.method?.toUpperCase()} ${config.url}`);
+        loggingService.logSimple(
+          'INFO',
+          'EXTERNAL_API_REQUEST',
+          `${config.method?.toUpperCase()} ${config.url}`,
+          { 
+            method: config.method,
+            url: config.url,
+            baseURL: config.baseURL
+          }
+        );
         return config;
       },
       error => Promise.reject(error)
@@ -42,11 +52,30 @@ export class ExternalApiService {
     // Response interceptor
     this.client.interceptors.response.use(
       response => {
-        console.log(`[API] Response: ${response.status} - ${response.config.url}`);
+        loggingService.logSimple(
+          'INFO',
+          'EXTERNAL_API_RESPONSE',
+          `Response: ${response.status} - ${response.config.url}`,
+          {
+            status: response.status,
+            url: response.config.url,
+            method: response.config.method
+          }
+        );
         return response;
       },
       error => {
-        console.error(`[API] Error: ${error.response?.status} - ${error.config?.url}`);
+        loggingService.logSimple(
+          'ERROR',
+          'EXTERNAL_API_ERROR',
+          `API Error: ${error.response?.status} - ${error.config?.url}`,
+          {
+            status: error.response?.status,
+            url: error.config?.url,
+            method: error.config?.method,
+            error_message: error.message
+          }
+        );
         return Promise.reject(error);
       }
     );
@@ -65,7 +94,17 @@ export class ExternalApiService {
     } catch (error: any) {
       // Retry logic for network errors
       if (attempt < this.retries && this.shouldRetry(error)) {
-        console.log(`[API] Retrying request (${attempt}/${this.retries})...`);
+        loggingService.logSimple(
+          'WARN',
+          'EXTERNAL_API_RETRY',
+          `Retrying request (${attempt}/${this.retries})`,
+          {
+            attempt,
+            max_retries: this.retries,
+            error_message: error.message,
+            url: error.config?.url
+          }
+        );
         await this.delay(this.retryDelay * attempt);
         return this.makeRequest(requestFn, attempt + 1);
       }
