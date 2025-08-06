@@ -48,8 +48,8 @@ describe('LibraryApiClient', () => {
 
       expect(result.success).toBe(true);
       expect(result.data).toBeDefined();
-      expect(result.data!.libs.lib).toHaveLength(DEFAULT_LIBRARY_COUNT);
-      expect(result.data!.numFound).toBe(25);
+      expect(result.data!.response.libs).toHaveLength(DEFAULT_LIBRARY_COUNT);
+      expect(result.data!.response.numFound).toBe(25);
 
       expect(mockApiService.get).toHaveBeenCalledWith(
         expect.stringContaining('/libSrchByBook?')
@@ -75,9 +75,9 @@ describe('LibraryApiClient', () => {
       });
 
       expect(result.success).toBe(true);
-      expect(result.data!.pageNo).toBe(2);
-      expect(result.data!.pageSize).toBe(5);
-      expect(result.data!.resultNum).toBe(5);
+      expect(result.data!.response.pageNo).toBe(2);
+      expect(result.data!.response.pageSize).toBe(5);
+      expect(result.data!.response.resultNum).toBe(5);
     });
 
     it('세부지역과 함께 검색이 성공해야 함', async () => {
@@ -116,8 +116,8 @@ describe('LibraryApiClient', () => {
       });
 
       expect(result.success).toBe(true);
-      expect(result.data!.libs.lib).toHaveLength(libraryCount);
-      expect(result.data!.resultNum).toBe(libraryCount);
+      expect(result.data!.response.libs).toHaveLength(libraryCount);
+      expect(result.data!.response.resultNum).toBe(libraryCount);
     });
 
     it('API 에러를 처리해야 함', async () => {
