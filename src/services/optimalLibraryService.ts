@@ -57,11 +57,15 @@ export class OptimalLibraryService {
         };
       }
 
-      // 3. 알라딘 API에서 책 정보 가져오기
+      // 3. 알라딘 API에서 책 정보 가져오기 (병렬 처리)
       const bookInfoMap = new Map<string, { title: string; cover: string }>(); // ISBN -> {title, cover}
       
-      for (const isbn of request.isbns) {
-        const aladdinResult = await this.aladdinApiClient.searchBooksByISBN(isbn);
+      const aladdinPromises = request.isbns.map(isbn => this.aladdinApiClient.searchBooksByISBN(isbn));
+      const aladdinResults = await Promise.all(aladdinPromises);
+      
+      for (let i = 0; i < request.isbns.length; i++) {
+        const isbn = request.isbns[i];
+        const aladdinResult = aladdinResults[i];
         if (aladdinResult.success && aladdinResult.data?.item && aladdinResult.data.item.length > 0) {
           const book = aladdinResult.data.item[0];
           bookInfoMap.set(isbn, {
