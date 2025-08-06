@@ -60,20 +60,28 @@ export class OptimalLibraryService {
       // 3. 알라딘 API에서 책 정보 가져오기 (병렬 처리)
       const bookInfoMap = new Map<string, { title: string; cover: string }>(); // ISBN -> {title, cover}
       
+      // Promise.allSettled 사용 이유:
+      // - Promise.all은 하나라도 실패하면 전체 실패 (fail-fast)
+      // - Promise.allSettled는 모든 Promise를 기다림 (일부 실패해도 진행)
+      // - 외부 API 호출에서는 일부 책 정보를 못 가져와도 나머지는 처리해야 함
       const aladdinPromises = request.isbns.map(isbn => this.aladdinApiClient.searchBooksByISBN(isbn));
-      const aladdinResults = await Promise.all(aladdinPromises);
+      const aladdinResults = await Promise.allSettled(aladdinPromises);
       
       for (let i = 0; i < request.isbns.length; i++) {
         const isbn = request.isbns[i];
-        const aladdinResult = aladdinResults[i];
-        if (aladdinResult.success && aladdinResult.data?.item && aladdinResult.data.item.length > 0) {
-          const book = aladdinResult.data.item[0];
+        const result = aladdinResults[i];
+        
+        if (result.status === 'fulfilled' && result.value.success && 
+            result.value.data?.item && result.value.data.item.length > 0) {
+          // API 호출 성공 + 데이터 존재 시 책 정보 저장
+          const book = result.value.data.item[0];
           bookInfoMap.set(isbn, {
             title: book.title,
             cover: book.cover
           });
         } else {
-          // 알라딘 API에서 찾지 못한 경우 기본값
+          // API 호출 실패 또는 데이터 없음 시 기본값 사용
+          // 이렇게 하면 일부 책만 실패해도 전체 프로세스는 계속됨
           bookInfoMap.set(isbn, {
             title: `Book ${isbn}`,
             cover: ''
@@ -81,17 +89,28 @@ export class OptimalLibraryService {
         }
       }
 
-      // 4. 각 ISBN에 대해 소장 도서관 조회
+      // 4. 각 ISBN에 대해 소장 도서관 조회 (병렬 처리)
       const libraryBookMap = new Map<number, string[]>(); // lib_code -> ISBN[]
       
-      for (const isbn of request.isbns) {
-        const apiResult = await this.libraryApiClient.searchLibrariesByISBN(isbn);
+      // 도서관정보나루 API 병렬 호출 (성능 최적화)
+      // 여러 ISBN을 순차적으로 호출하면 시간이 오래 걸리므로 병렬 처리
+      const libraryPromises = request.isbns.map(isbn => 
+        this.libraryApiClient.searchLibrariesByISBN(isbn)
+      );
+      const libraryResults = await Promise.allSettled(libraryPromises);
+      
+      for (let i = 0; i < request.isbns.length; i++) {
+        const isbn = request.isbns[i];
+        const result = libraryResults[i];
         
-        if (apiResult.success && apiResult.data?.response?.libs) {
-          for (const libWrapper of apiResult.data.response.libs) {
+        if (result.status === 'fulfilled' && result.value.success && 
+            result.value.data?.response?.libs) {
+          // 해당 ISBN을 소장한 도서관들 처리
+          for (const libWrapper of result.value.data.response.libs) {
             const libCode = parseInt(libWrapper.lib.libCode);
             
-            // DB에 존재하는 도서관만 처리
+            // DB에 존재하는 도서관만 처리 (데이터 정합성 보장)
+            // API에서 반환된 도서관이 우리 DB에 없을 수도 있음
             const dbLibrary = librariesResult.data.find(lib => lib.lib_code === libCode);
             if (dbLibrary) {
               if (!libraryBookMap.has(libCode)) {
@@ -101,6 +120,8 @@ export class OptimalLibraryService {
             }
           }
         }
+        // 실패한 경우는 해당 ISBN의 도서관 정보가 없는 것으로 처리
+        // 전체 프로세스는 계속 진행됨
       }
 
       // 5. Set Cover 알고리즘 적용
