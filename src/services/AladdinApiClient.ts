@@ -53,6 +53,15 @@ export class AladdinApiClient {
     });
   }
 
+  async searchBooksByISBN(isbn: string, options?: Partial<AladdinSearchParams>): Promise<ServiceResult<AladdinSearchResponse>> {
+    return this.searchBooks({
+      Query: isbn,
+      QueryType: 'Keyword',
+      MaxResults: 1, // ISBN은 고유하므로 1개만 검색
+      ...options,
+    });
+  }
+
   private buildQueryString(params: AladdinSearchParams): string {
     const searchParams = new URLSearchParams();
     

@@ -51,14 +51,18 @@ export interface Library {
   operatingTime: string;
 }
 
-export interface LibrarySearchResponse {
-  pageNo: number;
-  pageSize: number;
+export interface LibrarySearchData {
+  pageNo: string | number;
+  pageSize: string | number;
   numFound: number;
   resultNum: number;
-  libs: {
-    lib: Library[];
-  };
+  libs: Array<{
+    lib: Library;
+  }>;
+}
+
+export interface LibrarySearchResponse {
+  response: LibrarySearchData;
 }
 
 // Error Types

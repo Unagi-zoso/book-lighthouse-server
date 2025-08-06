@@ -58,12 +58,12 @@ export const createLibrarySearchResponse = (overrides: Partial<{
   }
 
   return {
-    pageNo: merged.pageNo,
-    pageSize: merged.pageSize,
-    numFound: merged.numFound,
-    resultNum: merged.resultNum,
-    libs: {
-      lib: merged.libraries
+    response: {
+      pageNo: merged.pageNo,
+      pageSize: merged.pageSize,
+      numFound: merged.numFound,
+      resultNum: merged.resultNum,
+      libs: merged.libraries.map(library => ({ lib: library }))
     }
   };
 };
