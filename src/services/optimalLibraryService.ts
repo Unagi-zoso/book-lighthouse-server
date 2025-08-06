@@ -254,7 +254,7 @@ export class OptimalLibraryService {
     
     return {
       books: booksWithLibraries,
-      coverageRate: Math.round(coverageRate * 100) / 100
+      coverageRate: Number(coverageRate.toFixed(2))
     };
   }
 }
