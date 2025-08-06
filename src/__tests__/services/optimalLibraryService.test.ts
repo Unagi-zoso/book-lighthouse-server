@@ -5,7 +5,7 @@ process.env.LIBRARY_API_KEY = 'test-library-api-key';
 
 jest.mock('@/services/libraryDatabaseService');
 jest.mock('@/services/libraryApiClient');
-jest.mock('@/services/AladdinApiClient');
+jest.mock('@/services/aladdinApiClient');
 jest.mock('@/config/supabase', () => ({
   supabase: {
     from: jest.fn()
@@ -15,7 +15,7 @@ jest.mock('@/config/supabase', () => ({
 import { OptimalLibraryService } from '@/services/optimalLibraryService';
 import { LibraryDatabaseService } from '@/services/libraryDatabaseService';
 import { LibraryApiClient } from '@/services/libraryApiClient';
-import { AladdinApiClient } from '@/services/AladdinApiClient';
+import { AladdinApiClient } from '@/services/aladdinApiClient';
 import {
   MOCK_SUCCESS_RESPONSES,
   MOCK_FAILURE_RESPONSES,

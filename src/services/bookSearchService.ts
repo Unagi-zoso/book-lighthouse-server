@@ -1,4 +1,4 @@
-import { AladdinApiClient } from './AladdinApiClient';
+import { AladdinApiClient } from './aladdinApiClient';
 import { ServiceResult, PaginationMeta, AladdinBookItem } from '@/types';
 import { BOOK_SEARCH_CONSTANTS } from '@/constants/bookSearch';
 
