@@ -107,7 +107,7 @@ export class OptimalLibraryService {
             result.value.data?.response?.libs) {
           // 해당 ISBN을 소장한 도서관들 처리
           for (const libWrapper of result.value.data.response.libs) {
-            const libCode = parseInt(libWrapper.lib.libCode);
+            const libCode = parseInt(libWrapper.lib.libCode, 10);
             
             // DB에 존재하는 도서관만 처리 (데이터 정합성 보장)
             // API에서 반환된 도서관이 우리 DB에 없을 수도 있음
