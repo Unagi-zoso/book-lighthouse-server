@@ -94,7 +94,7 @@ export class ExternalApiService {
     } catch (error: any) {
       // Retry logic for network errors
       if (attempt < this.retries && this.shouldRetry(error)) {
-        loggingService.logSimple(
+        await loggingService.logSimple(
           'WARN',
           'EXTERNAL_API_RETRY',
           `Retrying request (${attempt}/${this.retries})`,
