@@ -3,6 +3,7 @@ import helmet from 'helmet';
 import compression from 'compression';
 import { AppConfig } from './config/app.config';
 import { errorHandler, requestLogger, cors } from './middleware';
+import { loggingService } from './services/loggingService';
 
 // Routes
 import apiRouter from './routes/api';
@@ -63,14 +64,22 @@ class App {
   public listen(): void {
     const { port, host } = AppConfig.server;
 
-    this.app.listen(port, host, () => {
-      console.log(`
-🚀 Server is running!
-📍 Environment: ${AppConfig.server.env}
-🌐 URL: http://${host}:${port}
-📊 Health: http://${host}:${port}/health
-📚 API: http://${host}:${port}/api/v1
-      `);
+    this.app.listen(port, host, async () => {
+      const message = `Server started successfully on ${host}:${port}`;
+
+      // DB에 서버 시작 로그 저장
+      await loggingService.logSimple(
+        'INFO',
+        'SERVER_START',
+        message,
+        {
+          environment: AppConfig.server.env,
+          host,
+          port,
+          node_env: process.env.NODE_ENV,
+          pid: process.pid
+        }
+      );
     });
   }
 }

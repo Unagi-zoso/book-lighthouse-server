@@ -4,6 +4,7 @@ import {
   AladdinSearchParams, 
   AladdinSearchResponse 
 } from '@/types';
+import { loggingService } from './loggingService';
 
 export class AladdinApiClient {
   private readonly apiService: ExternalApiService;
@@ -26,6 +27,8 @@ export class AladdinApiClient {
   }
 
   async searchBooks(params: Omit<AladdinSearchParams, 'TTBKey' | 'Version'>): Promise<ServiceResult<AladdinSearchResponse>> {
+    const startTime = Date.now();
+    
     const searchParams: AladdinSearchParams = {
       TTBKey: this.ttbKey,
       Version: this.version,
@@ -42,7 +45,43 @@ export class AladdinApiClient {
     const queryString = this.buildQueryString(searchParams);
     const endpoint = `/ItemSearch.aspx?${queryString}`;
 
-    return this.apiService.get<AladdinSearchResponse>(endpoint);
+    try {
+      const result = await this.apiService.get<AladdinSearchResponse>(endpoint);
+      const duration = Date.now() - startTime;
+
+      // 외부 API 호출 로깅
+      await loggingService.logExternalApiCall(
+        'Aladdin',
+        endpoint,
+        result.success,
+        duration,
+        {
+          query: searchParams.Query,
+          query_type: searchParams.QueryType,
+          max_results: searchParams.MaxResults,
+          results_count: result.success ? result.data?.totalResults || 0 : 0
+        }
+      );
+
+      return result;
+    } catch (error) {
+      const duration = Date.now() - startTime;
+      
+      // 에러 로깅
+      await loggingService.logExternalApiCall(
+        'Aladdin',
+        endpoint,
+        false,
+        duration,
+        {
+          query: searchParams.Query,
+          query_type: searchParams.QueryType,
+          error: (error as Error).message
+        }
+      );
+
+      throw error;
+    }
   }
 
   async searchBooksByTitle(title: string, options?: Partial<AladdinSearchParams>): Promise<ServiceResult<AladdinSearchResponse>> {
