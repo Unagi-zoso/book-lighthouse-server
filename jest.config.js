@@ -19,4 +19,7 @@ module.exports = {
   clearMocks: true,
   resetMocks: true,
   restoreMocks: true,
+  
+  // 테스트 환경 변수 설정
+  setupFilesAfterEnv: ['<rootDir>/src/__tests__/setup.ts'],
 };

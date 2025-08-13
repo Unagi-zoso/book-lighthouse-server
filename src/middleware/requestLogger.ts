@@ -1,5 +1,6 @@
 import { Request, Response, NextFunction } from 'express';
 import { v4 as uuidv4 } from 'uuid';
+import { loggingService } from '@/services/loggingService';
 
 const requestLogger = (req: Request, res: Response, next: NextFunction): void => {
   // Add request ID for tracing
@@ -9,15 +10,28 @@ const requestLogger = (req: Request, res: Response, next: NextFunction): void =>
 
   const start = Date.now();
 
-  // Log request
-  console.log(`[${new Date().toISOString()}] ${req.method} ${req.url} - ${req.ip}`);
+  // Log request to DB
+  await loggingService.logWithRequest(
+    'INFO', 
+    'HTTP_REQUEST', 
+    `${req.method} ${req.url}`,
+    req,
+    { request_id: requestId }
+  );
 
   // Log response when finished
-  // 로그 저장소에 따라 다르게 적용 가능
   res.on('finish', () => {
     const duration = Date.now() - start;
-    console.log(
-      `[${new Date().toISOString()}] ${req.method} ${req.url} - ${res.statusCode} - ${duration}ms - ${req.ip}`
+    loggingService.logWithRequest(
+      'INFO',
+      'HTTP_RESPONSE',
+      `${req.method} ${req.url} - ${res.statusCode}`,
+      req,
+      { 
+        request_id: requestId,
+        status_code: res.statusCode,
+        duration_ms: duration
+      }
     );
   });
 
