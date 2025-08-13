@@ -140,7 +140,7 @@ export class LoggingService {
    * 한국 시간 타임스탬프 생성
    */
   private getKoreanTimestamp(): string {
-    return new Date().toLocaleString('sv-SE', { timeZone: 'Asia/Seoul' }).replace(' ', 'T') + 'Z';
+    return new Date().toLocaleString('sv-SE', { timeZone: 'Asia/Seoul' }).replace(' ', 'T');
   }
 
   /**
