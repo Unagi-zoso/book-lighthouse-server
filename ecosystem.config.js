@@ -10,9 +10,9 @@ module.exports = {
       NODE_ENV: 'production',
       HOST: '0.0.0.0'
     },
-    error_file: './logs/err.log',
-    out_file: './logs/out.log',
-    log_file: './logs/combined.log',
+    error_file: '/var/log/book-lighthouse/err.log',
+    out_file: '/var/log/book-lighthouse/out.log',
+    log_file: '/var/log/book-lighthouse/combined.log',
     time: true
   }]
 };
