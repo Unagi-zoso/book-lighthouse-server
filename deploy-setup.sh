@@ -16,17 +16,15 @@ if ! command -v pm2 &> /dev/null; then
     sudo npm install -g pm2
 fi
 
-# PM2 startup 설정 (자동 실행)
+# PM2 startup 설정 (안전한 방식)
 echo "Setting up PM2 startup..."
-STARTUP_CMD=$(pm2 startup | grep 'sudo env' | head -n 1)
-if [ -n "$STARTUP_CMD" ]; then
-    echo "Running PM2 startup command: $STARTUP_CMD"
-    eval $STARTUP_CMD
-    echo "PM2 startup configured successfully"
-else
-    echo "Warning: Could not automatically extract the PM2 startup command."
-    echo "Please run 'pm2 startup' manually and execute the provided sudo command."
-fi
+echo "Running pm2 startup command..."
+pm2 startup
+echo ""
+echo "IMPORTANT: Please copy and run the 'sudo env ...' command shown above."
+echo "This is required for PM2 to start automatically on system boot."
+echo ""
+echo "After running the sudo command, you can proceed with deployment."
 
 echo "Setup complete."
 echo ""
