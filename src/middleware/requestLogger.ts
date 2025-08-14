@@ -11,7 +11,7 @@ const requestLogger = (req: Request, res: Response, next: NextFunction): void =>
   const start = Date.now();
 
   // Log request to DB
-  await loggingService.logWithRequest(
+  loggingService.logWithRequest(
     'INFO', 
     'HTTP_REQUEST', 
     `${req.method} ${req.url}`,
