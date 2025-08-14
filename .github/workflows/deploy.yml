@@ -60,6 +60,9 @@ jobs:
         echo "$DEPLOY_KEY" > deploy_key
         chmod 600 deploy_key
         
+        # Ensure deploy_key and archive are always cleaned up
+        trap 'rm -f deploy_key book-lighthouse-app.tar.gz' EXIT
+        
         # Create deployment archive
         tar -czf book-lighthouse-app.tar.gz dist package.json package-lock.json ecosystem.config.js deploy-setup.sh
         
@@ -101,5 +104,4 @@ jobs:
           pm2 status
         EOF
         
-        # Clean up local files
-        rm deploy_key book-lighthouse-app.tar.gz
+        # Files will be cleaned up automatically by trap
