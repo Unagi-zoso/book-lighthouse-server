@@ -73,32 +73,36 @@ jobs:
         ssh -i deploy_key -o StrictHostKeyChecking=no $DEPLOY_USER@$DEPLOY_HOST << 'EOF'
           cd /tmp
           
+          # Application configuration
+          APP_NAME="book-lighthouse-api"
+          APP_DIR="/opt/$APP_NAME"
+          
           # Stop PM2 app gracefully
-          pm2 stop book-lighthouse-api || true
+          pm2 stop $APP_NAME || true
           
           # Backup current deployment
-          sudo cp -r /opt/book-lighthouse-api /opt/book-lighthouse-api-backup-$(date +%Y%m%d-%H%M%S) || true
+          sudo cp -r $APP_DIR $APP_DIR-backup-$(date +%Y%m%d-%H%M%S) || true
           
           # Extract new deployment to temporary location
-          mkdir -p book-lighthouse-deploy
-          tar -xzf book-lighthouse-app.tar.gz -C book-lighthouse-deploy/
-          cd book-lighthouse-deploy
+          mkdir -p ${APP_NAME}-deploy
+          tar -xzf book-lighthouse-app.tar.gz -C ${APP_NAME}-deploy/
+          cd ${APP_NAME}-deploy
           
           # Install production dependencies with memory limit
           systemd-run --scope -p MemoryMax=512M -p MemoryHigh=480M npm ci --omit=dev
           
           # Deploy to production location
-          sudo cp -r dist package.json package-lock.json node_modules ecosystem.config.js /opt/book-lighthouse-api/
-          sudo chown -R $USER:$USER /opt/book-lighthouse-api
+          sudo cp -r dist package.json package-lock.json node_modules ecosystem.config.js $APP_DIR/
+          sudo chown -R $USER:$USER $APP_DIR
           
           # Start/reload PM2 app
-          cd /opt/book-lighthouse-api
+          cd $APP_DIR
           pm2 startOrReload ecosystem.config.js --env production
           pm2 save
           
           # Clean up
           cd /
-          rm -rf /tmp/book-lighthouse-deploy /tmp/book-lighthouse-app.tar.gz
+          rm -rf /tmp/${APP_NAME}-deploy /tmp/book-lighthouse-app.tar.gz
           
           echo "Deployment completed. PM2 status:"
           pm2 status
