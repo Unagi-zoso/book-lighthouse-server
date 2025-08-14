@@ -77,8 +77,14 @@ jobs:
           APP_NAME="book-lighthouse-api"
           APP_DIR="/opt/$APP_NAME"
           
-          # Stop PM2 app gracefully
+          # Create necessary directories
+          sudo mkdir -p $APP_DIR
+          sudo mkdir -p /var/log/book-lighthouse
+          sudo chown -R $USER:$USER /var/log/book-lighthouse
+          
+          # Stop specific app if exists (ignore if not found)
           pm2 stop $APP_NAME || true
+          pm2 delete $APP_NAME || true
           
           # Backup current deployment
           sudo cp -r $APP_DIR $APP_DIR-backup-$(date +%Y%m%d-%H%M%S) || true
@@ -88,8 +94,8 @@ jobs:
           tar -xzf book-lighthouse-app.tar.gz -C ${APP_NAME}-deploy/
           cd ${APP_NAME}-deploy
           
-          # Install production dependencies with memory limit
-          systemd-run --scope -p MemoryMax=512M -p MemoryHigh=480M npm ci --omit=dev
+          # Install production dependencies with memory limit (fallback to regular npm if systemd-run fails)
+          sudo systemd-run --scope -p MemoryMax=512M -p MemoryHigh=480M npm ci --omit=dev || npm ci --omit=dev
           
           # Deploy to production location
           sudo cp -r dist package.json package-lock.json node_modules ecosystem.config.js $APP_DIR/
