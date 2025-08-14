@@ -82,7 +82,7 @@ jobs:
           cd book-lighthouse-deploy
           
           # Install production dependencies with memory limit
-          systemd-run --scope -p MemoryMax=512M -p MemoryHigh=480M npm ci --only=production
+          systemd-run --scope -p MemoryMax=512M -p MemoryHigh=480M npm ci --omit=dev
           
           # Deploy to production location
           sudo cp -r dist package.json package-lock.json node_modules ecosystem.config.js /opt/book-lighthouse-api/
@@ -90,7 +90,7 @@ jobs:
           
           # Start/reload PM2 app
           cd /opt/book-lighthouse-api
-          pm2 start ecosystem.config.js --env production || pm2 reload ecosystem.config.js --env production
+          pm2 startOrReload ecosystem.config.js --env production
           pm2 save
           
           # Clean up

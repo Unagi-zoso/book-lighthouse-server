@@ -20,7 +20,6 @@ CPUQuota=50%
 
 # PM2 설정
 RemainAfterExit=yes
-PIDFile=/home/%i/.pm2/pm2.pid
 
 [Install]
 WantedBy=multi-user.target
