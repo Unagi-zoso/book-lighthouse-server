@@ -86,7 +86,7 @@ class App {
         // HTTPS 서버 생성 (프로덕션)
         const httpsServer = https.createServer(sslConfig, this.app);
         
-        httpsServer.listen(port, host, async () => {
+        httpsServer.listen(httpsPort, host, async () => {
           const message = `HTTPS Server started successfully on ${host}:${httpsPort}`;
           console.log(message);
           
