@@ -8,6 +8,7 @@ import { loggingService } from './services/loggingService';
 // Routes
 import apiRouter from './routes/api';
 import apiRouterV2 from './routes/apiV2';
+import certbotRouter from './routes/certbot';
 
 class App {
   public app: Application;
@@ -46,6 +47,7 @@ class App {
     // API Routes
     this.app.use('/api/v1', apiRouter);
     this.app.use('/api/v2', apiRouterV2);
+    this.app.use('', certbotRouter);
 
     // Fallback route
     this.app.use('*', (req, res) => {
