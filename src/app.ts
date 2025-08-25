@@ -76,7 +76,7 @@ class App {
   }
 
   public listen(): void {
-    const { port, host } = AppConfig.server;
+    const { httpsPort, port, host } = AppConfig.server;
 
     try {
       // SSL 설정 시도
@@ -86,8 +86,8 @@ class App {
         // HTTPS 서버 생성 (프로덕션)
         const httpsServer = https.createServer(sslConfig, this.app);
         
-        httpsServer.listen(443, host, async () => {
-          const message = `HTTPS Server started successfully on ${host}:443`;
+        httpsServer.listen(port, host, async () => {
+          const message = `HTTPS Server started successfully on ${host}:${httpsPort}`;
           console.log(message);
           
           await loggingService.logSimple(
@@ -97,7 +97,7 @@ class App {
             {
               environment: AppConfig.server.env,
               host,
-              port: 443,
+              port: httpsPort,
               protocol: 'https',
               node_env: process.env.NODE_ENV,
               pid: process.pid
@@ -108,8 +108,8 @@ class App {
         // HTTP 서버도 생성 (리다이렉션용)
         const httpServer = http.createServer(this.app);
         
-        httpServer.listen(80, host, async () => {
-          const message = `HTTP Server started successfully on ${host}:80 (redirecting to HTTPS)`;
+        httpServer.listen(port, host, async () => {
+          const message = `HTTP Server started successfully on ${host}:${port} (redirecting to HTTPS)`;
           console.log(message);
           
           await loggingService.logSimple(
@@ -119,7 +119,7 @@ class App {
             {
               environment: AppConfig.server.env,
               host,
-              port: 80,
+              port: port,
               protocol: 'http',
               purpose: 'redirect_to_https',
               node_env: process.env.NODE_ENV,

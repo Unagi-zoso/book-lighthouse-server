@@ -6,6 +6,7 @@ config();
 export const AppConfig = {
   // Server Configuration
   server: {
+    httpsPort: parseInt(process.env.HTTPS_PORT || '443', 10),
     port: parseInt(process.env.PORT || '3000', 10),
     host: process.env.HOST || 'localhost',
     env: process.env.NODE_ENV || 'development',
