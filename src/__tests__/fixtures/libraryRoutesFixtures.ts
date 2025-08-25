@@ -1,5 +1,6 @@
 import { LibraryDatabaseRecord } from '@/services/libraryDatabaseService';
 import { OptimalLibraryResponse } from '@/services/optimalLibraryService';
+import { OptimalLibraryResponse as OptimalLibraryResponseV2 } from '@/services/optimalLibraryServiceV2';
 
 export const createLibraryRecord = (overrides: Partial<LibraryDatabaseRecord> = {}): LibraryDatabaseRecord => ({
   lib_code: 111001,
@@ -54,6 +55,54 @@ export const createOptimalLibraryResponse = (overrides: Partial<{
       {
         books,
         coverageRate: merged.coverageRate
+      }
+    ]
+  };
+};
+
+export const createOptimalLibraryResponseV2 = (overrides: Partial<{
+  libraryCount: number;
+  bookCount: number;
+  coverageCount: number;
+  isbns: string[];
+}> = {}): OptimalLibraryResponseV2 => {
+  const defaults = {
+    libraryCount: 2,
+    bookCount: 2,
+    coverageCount: 2,
+    isbns: ['9788936433529', '9788937460777']
+  };
+  
+  const merged = { ...defaults, ...overrides };
+  
+  const libraries = Array.from({ length: merged.libraryCount }, (_, index) => {
+    const library = createLibraryRecord({
+      lib_code: 111001 + index,
+      lib_name: `테스트 도서관 ${String.fromCharCode(65 + index)}` // A, B, C...
+    });
+
+    // 각 도서관마다 일부 책들을 배치 (실제 시나리오를 반영)
+    const booksForThisLibrary = merged.isbns
+      .slice(index, index + 1) // 각 도서관당 하나씩 배치
+      .map(isbn => ({
+        isbn,
+        title: `Book ${isbn}`,
+        cover: `https://example.com/cover/${isbn}.jpg`
+      }));
+
+    return {
+      lib_code: library.lib_code,
+      lib_name: library.lib_name,
+      address: library.address,
+      books: booksForThisLibrary
+    };
+  });
+  
+  return {
+    optimalSets: [
+      {
+        libraries,
+        coverageCount: merged.coverageCount
       }
     ]
   };
