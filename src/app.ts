@@ -1,8 +1,11 @@
 import express, { Application } from 'express';
 import helmet from 'helmet';
 import compression from 'compression';
+import https from 'https';
+import http from 'http';
 import { AppConfig } from './config/app.config';
 import { errorHandler, requestLogger, cors } from './middleware';
+import { httpsRedirect, setHSTS, setSecurityHeaders, getSSLConfig } from './middleware/httpsMiddleware';
 import { loggingService } from './services/loggingService';
 
 // Routes
@@ -21,10 +24,17 @@ class App {
   }
 
   private initializeMiddlewares(): void {
+    // HTTPS 관련 미들웨어 (가장 먼저 적용)
+    this.app.use(httpsRedirect);
+    this.app.use(setHSTS);
+    this.app.use(setSecurityHeaders);
+
     // Security & Performance
     this.app.use(
       helmet({
         contentSecurityPolicy: AppConfig.server.env === 'production',
+        // HSTS는 별도로 처리하므로 helmet에서 비활성화
+        hsts: false,
       })
     );
     this.app.use(compression());
@@ -68,23 +78,103 @@ class App {
   public listen(): void {
     const { port, host } = AppConfig.server;
 
-    this.app.listen(port, host, async () => {
-      const message = `Server started successfully on ${host}:${port}`;
+    try {
+      // SSL 설정 시도
+      const sslConfig = getSSLConfig();
 
-      // DB에 서버 시작 로그 저장
-      await loggingService.logSimple(
-        'INFO',
-        'SERVER_START',
-        message,
-        {
-          environment: AppConfig.server.env,
-          host,
-          port,
-          node_env: process.env.NODE_ENV,
-          pid: process.pid
-        }
-      );
-    });
+      if (sslConfig && AppConfig.server.env === 'production') {
+        // HTTPS 서버 생성 (프로덕션)
+        const httpsServer = https.createServer(sslConfig, this.app);
+        
+        httpsServer.listen(443, host, async () => {
+          const message = `HTTPS Server started successfully on ${host}:443`;
+          console.log(message);
+          
+          await loggingService.logSimple(
+            'INFO',
+            'HTTPS_SERVER_START',
+            message,
+            {
+              environment: AppConfig.server.env,
+              host,
+              port: 443,
+              protocol: 'https',
+              node_env: process.env.NODE_ENV,
+              pid: process.pid
+            }
+          );
+        });
+
+        // HTTP 서버도 생성 (리다이렉션용)
+        const httpServer = http.createServer(this.app);
+        
+        httpServer.listen(80, host, async () => {
+          const message = `HTTP Server started successfully on ${host}:80 (redirecting to HTTPS)`;
+          console.log(message);
+          
+          await loggingService.logSimple(
+            'INFO',
+            'HTTP_REDIRECT_SERVER_START',
+            message,
+            {
+              environment: AppConfig.server.env,
+              host,
+              port: 80,
+              protocol: 'http',
+              purpose: 'redirect_to_https',
+              node_env: process.env.NODE_ENV,
+              pid: process.pid
+            }
+          );
+        });
+
+      } else {
+        // HTTP 서버만 생성 (개발환경 또는 SSL 설정 없음)
+        this.app.listen(port, host, async () => {
+          const message = `HTTP Server started successfully on ${host}:${port}`;
+          console.log(message);
+          
+          await loggingService.logSimple(
+            'INFO',
+            'HTTP_SERVER_START',
+            message,
+            {
+              environment: AppConfig.server.env,
+              host,
+              port,
+              protocol: 'http',
+              node_env: process.env.NODE_ENV,
+              pid: process.pid
+            }
+          );
+        });
+      }
+
+    } catch (error) {
+      console.error('Failed to configure SSL, falling back to HTTP:', error);
+      
+      // SSL 설정 실패 시 HTTP로 폴백
+      this.app.listen(port, host, async () => {
+        const message = `HTTP Server started successfully on ${host}:${port} (SSL configuration failed)`;
+        console.log(message);
+        
+        await loggingService.logSimple(
+          'WARN',
+          'HTTP_FALLBACK_SERVER_START',
+          message,
+          {
+            environment: AppConfig.server.env,
+            host,
+            port,
+            protocol: 'http',
+            reason: 'ssl_config_failed',
+            error: error instanceof Error ? error.message : String(error),
+            node_env: process.env.NODE_ENV,
+            pid: process.pid
+          }
+        );
+      });
+    }
   }
 }
 
