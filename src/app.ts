@@ -80,8 +80,8 @@ class App {
 
     try {
       // SSL 설정 시도
-      const sslConfig = getSSLConfig();
 
+      const sslConfig = getSSLConfig();
       if (sslConfig && AppConfig.server.env === 'production') {
         // HTTPS 서버 생성 (프로덕션)
         const httpsServer = https.createServer(sslConfig, this.app);

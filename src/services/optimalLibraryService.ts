@@ -1,7 +1,8 @@
 import { ServiceResult } from '@/types';
 import { LibraryDatabaseService, LibraryDatabaseRecord } from './libraryDatabaseService';
 import { LibraryApiClient } from './libraryApiClient';
-import { AladdinApiClient } from './aladdinApiClient';
+import { NLApiClient } from './nlApiClient';
+import { BookApiAdapter } from './bookApiAdapter';
 
 export interface OptimalLibraryRequest {
   isbns: string[]; // 1-3개의 ISBN
@@ -30,12 +31,12 @@ export interface OptimalLibraryResponse {
 export class OptimalLibraryService {
   private readonly libraryDbService: LibraryDatabaseService;
   private readonly libraryApiClient: LibraryApiClient;
-  private readonly aladdinApiClient: AladdinApiClient;
+  private readonly nlApiClient: NLApiClient;
 
   constructor() {
     this.libraryDbService = new LibraryDatabaseService();
     this.libraryApiClient = new LibraryApiClient();
-    this.aladdinApiClient = new AladdinApiClient();
+    this.nlApiClient = new NLApiClient();
   }
 
   async calculateOptimalLibrarySet(request: OptimalLibraryRequest): Promise<ServiceResult<OptimalLibraryResponse>> {
@@ -57,24 +58,24 @@ export class OptimalLibraryService {
         };
       }
 
-      // 3. 알라딘 API에서 책 정보 가져오기 (병렬 처리)
+      // 3. 국립중앙도서관 서지검색 API에서 책 정보 가져오기 (병렬 처리)
       const bookInfoMap = new Map<string, { title: string; cover: string }>(); // ISBN -> {title, cover}
       
       // Promise.allSettled 사용 이유:
       // - Promise.all은 하나라도 실패하면 전체 실패 (fail-fast)
       // - Promise.allSettled는 모든 Promise를 기다림 (일부 실패해도 진행)
       // - 외부 API 호출에서는 일부 책 정보를 못 가져와도 나머지는 처리해야 함
-      const aladdinPromises = request.isbns.map(isbn => this.aladdinApiClient.searchBooksByISBN(isbn));
-      const aladdinResults = await Promise.allSettled(aladdinPromises);
+      const nlPromises = request.isbns.map(isbn => this.nlApiClient.searchBibliographicByISBN(isbn));
+      const nlResults = await Promise.allSettled(nlPromises);
       
       for (let i = 0; i < request.isbns.length; i++) {
         const isbn = request.isbns[i];
-        const result = aladdinResults[i];
+        const result = nlResults[i];
         
         if (result.status === 'fulfilled' && result.value.success && 
-            result.value.data?.item && result.value.data.item.length > 0) {
+            result.value.data?.docs && result.value.data.docs.length > 0) {
           // API 호출 성공 + 데이터 존재 시 책 정보 저장
-          const book = result.value.data.item[0];
+          const book = BookApiAdapter.convertBibliographicToBook(result.value.data.docs[0]);
           bookInfoMap.set(isbn, {
             title: book.title,
             cover: book.cover
