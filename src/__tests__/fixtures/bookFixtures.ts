@@ -1,4 +1,4 @@
-import { AladdinSearchResponse, AladdinBookItem } from '@/types';
+import { BookSearchResponse, BookItem } from '@/types';
 import { BookSearchResult } from '@/services/bookSearchService';
 import { BOOK_SEARCH_CONSTANTS } from '@/constants/bookSearch';
 
@@ -10,7 +10,7 @@ export const DEFAULTS = {
   LIMIT: BOOK_SEARCH_CONSTANTS.DEFAULT_LIMIT,
   MIN_LIMIT: BOOK_SEARCH_CONSTANTS.MIN_LIMIT,
   TOTAL: 25,
-  TOTAL_PAGES: 3,
+  TOTAL_PAGES: 5, // 25 / 5 = 5 pages
   BOOKS_COUNT: 2,
   START_INDEX: 1,
   QUERY: 'test book'
@@ -19,7 +19,7 @@ export const DEFAULTS = {
 /**
  * 테스트용 책 아이템 생성 헬퍼
  */
-export const createBookItem = (overrides: Partial<AladdinBookItem> = {}): AladdinBookItem => ({
+export const createBookItem = (overrides: Partial<BookItem> = {}): BookItem => ({
   title: '테스트 책',
   link: 'http://example.com/book',
   author: '테스트 저자',
@@ -44,15 +44,15 @@ export const createBookItem = (overrides: Partial<AladdinBookItem> = {}): Aladdi
 });
 
 /**
- * 테스트용 알라딘 검색 응답 생성 헬퍼
+ * 테스트용 책 검색 응답 생성 헬퍼
  */
-export const createAladdinSearchResponse = (overrides: Partial<{
+export const createBookSearchResponse = (overrides: Partial<{
   totalResults: number;
   startIndex: number;
   itemsPerPage: number;
   query: string;
-  books: AladdinBookItem[];
-}> = {}): AladdinSearchResponse => {
+  books: BookItem[];
+}> = {}): BookSearchResponse => {
   const defaults = {
     totalResults: DEFAULTS.TOTAL,
     startIndex: DEFAULTS.START_INDEX,

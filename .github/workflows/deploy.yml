@@ -29,8 +29,7 @@ jobs:
       
     - name: Build application
       env:
-        ALADDIN_API_KEY: ${{ secrets.ALADDIN_API_KEY }}
-        ALADDIN_API_BASE_URL: ${{ secrets.ALADDIN_API_BASE_URL }}
+        NL_API_KEY: ${{ secrets.NL_API_KEY }}
         LIBRARY_API_KEY: ${{ secrets.LIBRARY_API_KEY }}
         LIBRARY_API_BASE_URL: ${{ secrets.LIBRARY_API_BASE_URL }}
         SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
@@ -60,8 +59,7 @@ jobs:
       
     - name: Build application
       env:
-        ALADDIN_API_KEY: ${{ secrets.ALADDIN_API_KEY }}
-        ALADDIN_API_BASE_URL: ${{ secrets.ALADDIN_API_BASE_URL }}
+        NL_API_KEY: ${{ secrets.NL_API_KEY }}
         LIBRARY_API_KEY: ${{ secrets.LIBRARY_API_KEY }}
         LIBRARY_API_BASE_URL: ${{ secrets.LIBRARY_API_BASE_URL }}
         SUPABASE_URL: ${{ secrets.SUPABASE_URL }}

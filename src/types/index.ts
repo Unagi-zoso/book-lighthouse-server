@@ -86,8 +86,8 @@ export interface ServiceResult<T> {
   error?: string;
 }
 
-// Aladdin API Types
-export interface AladdinSearchParams {
+// Book Search API Types
+export interface BookSearchParams {
   TTBKey: string;
   Query: string;
   QueryType?: 'Keyword' | 'Title' | 'Author' | 'Publisher';
@@ -102,7 +102,7 @@ export interface AladdinSearchParams {
   OptResult?: string;
 }
 
-export interface AladdinBookItem {
+export interface BookItem {
   title: string;
   link: string;
   author: string;
@@ -141,7 +141,7 @@ export interface AladdinBookItem {
   };
 }
 
-export interface AladdinSearchResponse {
+export interface BookSearchResponse {
   version: number;
   title: string;
   link: string;
@@ -152,5 +152,5 @@ export interface AladdinSearchResponse {
   query: string;
   searchCategoryId?: number;
   searchCategoryName?: string;
-  item: AladdinBookItem[];
+  item: BookItem[];
 }
