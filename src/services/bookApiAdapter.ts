@@ -76,26 +76,12 @@ export class BookApiAdapter {
     let publisher = nlItem.pubInfo?.split(':')[0]?.trim() || '';
     publisher = publisher.replace(/<[^>]*>/g, '').trim();
     
-    // 디버깅 로그 (개발환경에서만)
-    if (process.env.NODE_ENV === 'development') {
-      console.log('=== 변환 디버깅 ===');
-      console.log('Original title:', nlItem.titleInfo);
-      console.log('Clean title:', cleanTitle);
-      console.log('Original author:', nlItem.authorInfo);
-      console.log('Clean author:', cleanAuthor);
-      console.log('Bibliography response available:', !!bibliographicResponse);
-      console.log('Bibliography docs count:', bibliographicResponse?.docs?.length || 0);
-    }
-    
     // 서지정보에서 ISBN과 커버 이미지 찾기
     let isbn = '';
     let isbn13 = '';
     let cover = '';
     
     if (bibliographicResponse?.docs) {
-      if (process.env.NODE_ENV === 'development') {
-        console.log('Looking for matches in bibliography for:', cleanTitle);
-      }
       
       // 제목으로 1차 매칭 (정확도 높음)
       let matchingBib = bibliographicResponse.docs.find(bib => 
@@ -112,31 +98,13 @@ export class BookApiAdapter {
       // 가장 첫 번째 결과 사용 (마지막 수단)
       if (!matchingBib && bibliographicResponse.docs.length > 0) {
         matchingBib = bibliographicResponse.docs[0];
-        if (process.env.NODE_ENV === 'development') {
-          console.log('Using first bibliography result as fallback');
-        }
       }
       
       if (matchingBib) {
-        if (process.env.NODE_ENV === 'development') {
-          console.log('Found matching bib:', {
-            title: matchingBib.TITLE,
-            author: matchingBib.AUTHOR,
-            isbn: matchingBib.EA_ISBN,
-            cover: matchingBib.TITLE_URL
-          });
-        }
-        
         const fullIsbn = matchingBib.EA_ISBN?.replace(/[^\d]/g, '') || '';
         isbn13 = fullIsbn.slice(0, 13);
         isbn = fullIsbn.slice(0, 10);
         cover = matchingBib.TITLE_URL || '';
-        
-        if (process.env.NODE_ENV === 'development') {
-          console.log('Extracted:', { isbn, isbn13, cover });
-        }
-      } else if (process.env.NODE_ENV === 'development') {
-        console.log('No matching bibliography found');
       }
     }
     
@@ -166,9 +134,6 @@ export class BookApiAdapter {
       }
     };
     
-    if (process.env.NODE_ENV === 'development') {
-      console.log('Final result:', { title: result.title, author: result.author, isbn: result.isbn, isbn13: result.isbn13, cover: result.cover });
-    }
     return result;
   }
 
